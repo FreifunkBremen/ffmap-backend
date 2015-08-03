@@ -116,6 +116,9 @@ def main(params):
     for vd, gwl in mesh_info:
         graph.import_vis_data(batadv_graph, nodedb['nodes'], vd)
 
+    for alfred in alfred_instances:
+        graph.import_alfred_vis_data(batadv_graph, nodedb['nodes'], alfred.vis())
+
     # force mac addresses to be vpn-link only (like gateways for example)
     if params['vpn']:
         graph.mark_vpn(batadv_graph, frozenset(params['vpn']))

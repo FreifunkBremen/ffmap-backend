@@ -21,6 +21,18 @@ def import_vis_data(graph, nodes, vis_data):
                                         dict(tq=float(d['label']))), edges))
 
 
+def import_alfred_vis_data(graph, nodes, vis_data):
+    vis_data = list(filter(lambda d: 'vlans' in d, vis_data))
+    node_ids = map(lambda d: d['node_id'], vis_data)
+    def vd_to_mac(vd):
+        return nodes[vd['node_id']]['nodeinfo']['network']['mac']
+    def add_two_to_mac(mac):
+        return "%s%x" % (mac[:-2], int(mac[-2:], 16)+2)
+    graph.add_nodes_from((vd_to_mac(vd), dict(primary=vd_to_mac(vd), node_id=vd['node_id'])) for vd in vis_data)
+    edges = list(chain.from_iterable([(vd_to_mac(data), add_two_to_mac(neighbor), dict(tq=255/float(link['tq']))) for neighbor, link in data['vlans'].items()] for data in vis_data if len(data['vlans']) > 0))
+    graph.add_edges_from(edges)
+
+
 def mark_vpn(graph, vpn_macs):
     components = map(frozenset, nx.weakly_connected_components(graph))
     components = filter(vpn_macs.intersection, components)

@@ -7,6 +7,10 @@ def build_mac_table(nodes):
     macs = dict()
     for node_id, node in nodes.items():
         try:
+            macs[node['nodeinfo']['network']['mac']] = node_id
+        except KeyError:
+            pass
+        try:
             for mac in node['nodeinfo']['network']['mesh_interfaces']:
                 macs[mac] = node_id
         except KeyError:
